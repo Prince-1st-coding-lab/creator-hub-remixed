@@ -64,7 +64,7 @@ export const digits = (value: string) => value.replace(/[^\d+]/g, "").replace(/^
 export const whatsappLink = (whatsapp: string, message?: string) =>
   `https://wa.me/${digits(whatsapp)}${message ? `?text=${encodeURIComponent(message)}` : ""}`;
 
-export const LOGO_SRC = "/images/logo.jpg";
+export const LOGO_SRC = "/images/logo.png";
 
 export type Tip = Tables<"tips">;
 
