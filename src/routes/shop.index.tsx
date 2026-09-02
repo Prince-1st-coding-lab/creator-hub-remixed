@@ -14,7 +14,7 @@ export const Route = createFileRoute("/shop/")({
       context.queryClient.ensureQueryData(productsQuery),
       context.queryClient.ensureQueryData(servicesQuery),
     ]);
-    return { products };
+    return { products: products.filter((p) => !p.parent_id) };
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -74,7 +74,9 @@ export const Route = createFileRoute("/shop/")({
 
 function ShopPage() {
   const { data: settings } = useSuspenseQuery(settingsQuery);
-  const { data: products } = useSuspenseQuery(productsQuery);
+  const { data: allProducts } = useSuspenseQuery(productsQuery);
+  const products = allProducts.filter((p) => !p.parent_id);
+
   const { data: services } = useSuspenseQuery(servicesQuery);
 
   return (

@@ -295,10 +295,14 @@ function GalleryField({
   label,
   value,
   onChange,
+  onImageClick,
+  detailFor,
 }: {
   label: string;
   value: string[];
   onChange: (v: string[]) => void;
+  onImageClick?: (src: string) => void;
+  detailFor?: (src: string) => string | null;
 }) {
   const [uploading, setUploading] = useState(false);
 
@@ -319,31 +323,56 @@ function GalleryField({
   return (
     <div className="text-sm">
       <span className="font-medium">{label}</span>
+      {onImageClick ? (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Click a photo to add or edit its details (name, price, size…).
+        </p>
+      ) : null}
       {value.length ? (
         <div className="mt-2 flex flex-wrap gap-3">
-          {value.map((src, i) => (
-            <div key={`${src}-${i}`} className="relative">
-              <img
-                src={src}
-                alt=""
-                className="h-20 w-20 rounded-lg object-cover ring-1 ring-border"
-              />
-              <button
-                type="button"
-                aria-label="Remove image"
-                className="absolute -right-2 -top-2 h-6 w-6 rounded-full border border-border bg-background text-xs"
-                onClick={() => {
-                  onChange(value.filter((_, idx) => idx !== i));
-                  void deleteUploadedImage(src);
-                  toast.success("Image removed — remember to save");
-                }}
-              >
-                ×
-              </button>
-            </div>
-          ))}
+          {value.map((src, i) => {
+            const detail = detailFor?.(src) ?? null;
+            return (
+              <div key={`${src}-${i}`} className="relative">
+                <button
+                  type="button"
+                  onClick={() => onImageClick?.(src)}
+                  aria-label={onImageClick ? "Edit photo details" : undefined}
+                  className={onImageClick ? "block cursor-pointer" : "block cursor-default"}
+                >
+                  <img
+                    src={src}
+                    alt=""
+                    className="h-20 w-20 rounded-lg object-cover ring-1 ring-border"
+                  />
+                  {onImageClick ? (
+                    <span
+                      className={`mt-1 block max-w-20 truncate text-[10px] ${
+                        detail ? "text-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      {detail ?? "Add details"}
+                    </span>
+                  ) : null}
+                </button>
+                <button
+                  type="button"
+                  aria-label="Remove image"
+                  className="absolute -right-2 -top-2 h-6 w-6 rounded-full border border-border bg-background text-xs"
+                  onClick={() => {
+                    onChange(value.filter((_, idx) => idx !== i));
+                    void deleteUploadedImage(src);
+                    toast.success("Image removed — remember to save");
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
         </div>
       ) : null}
+
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-medium">
           {uploading ? "Uploading…" : "Upload images"}
@@ -565,6 +594,8 @@ function ProductsPanel() {
   const qc = useQueryClient();
   const { data } = useQuery(allProductsQuery);
   const [items, setItems] = useState<Product[]>([]);
+  const [editing, setEditing] = useState<{ parent: Product; src: string } | null>(null);
+
   useEffect(() => {
     if (data) setItems(data);
   }, [data]);
@@ -655,7 +686,12 @@ function ProductsPanel() {
             label="Product gallery images"
             value={p.gallery ?? []}
             onChange={(v) => update(p.id, { gallery: v })}
+            onImageClick={(src) => setEditing({ parent: p, src })}
+            detailFor={(src) =>
+              items.find((c) => c.parent_id === p.id && c.image_url === src)?.name ?? null
+            }
           />
+
 
           <Field
             label="Product page text (extra details)"
@@ -740,9 +776,192 @@ function ProductsPanel() {
           </div>
         </div>
       ))}
+      {editing ? (
+        <GalleryItemEditor
+          parent={editing.parent}
+          src={editing.src}
+          existing={
+            items.find(
+              (c) => c.parent_id === editing.parent.id && c.image_url === editing.src,
+            ) ?? null
+          }
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            refresh();
+          }}
+        />
+      ) : null}
     </div>
   );
 }
+
+type GalleryDetail = {
+  name: string;
+  price: string;
+  description: string;
+  size: string;
+  material: string;
+  placement: string;
+  available: boolean;
+  visible: boolean;
+};
+
+function GalleryItemEditor({
+  parent,
+  src,
+  existing,
+  onClose,
+  onSaved,
+}: {
+  parent: Product;
+  src: string;
+  existing: Product | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState<GalleryDetail>({
+    name: existing?.name ?? "",
+    price: existing?.price ?? "",
+    description: existing?.description ?? "",
+    size: existing?.size ?? "",
+    material: existing?.material ?? "",
+    placement: existing?.placement ?? "",
+    available: existing?.available ?? true,
+    visible: existing?.visible ?? true,
+  });
+  const [busy, setBusy] = useState(false);
+
+  const set = (k: keyof GalleryDetail) => (v: string) => setForm({ ...form, [k]: v });
+
+  const save = async () => {
+    if (!form.name.trim()) {
+      toast.error("Give this photo a name first");
+      return;
+    }
+    setBusy(true);
+    const payload = {
+      name: form.name,
+      price: form.price,
+      description: form.description,
+      size: form.size,
+      material: form.material,
+      placement: form.placement,
+      available: form.available,
+      visible: form.visible,
+      image_url: src,
+      parent_id: parent.id,
+    };
+    const { error } = existing
+      ? await supabase.from("products").update(payload).eq("id", existing.id)
+      : await supabase.from("products").insert({
+          ...payload,
+          slug: `${parent.slug || "item"}-${Math.random().toString(36).slice(2, 8)}`,
+          position: 0,
+        });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Photo details saved");
+    onSaved();
+  };
+
+  const removeDetails = async () => {
+    if (!existing) return;
+    setBusy(true);
+    const { error } = await supabase.from("products").delete().eq("id", existing.id);
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Photo details removed");
+    onSaved();
+  };
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Photo details"
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-foreground/60 p-4 backdrop-blur-sm"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="my-8 w-full max-w-lg space-y-4 rounded-2xl border border-border bg-card p-6"
+      >
+        <div className="flex items-start gap-4">
+          <img src={src} alt="" className="h-24 w-24 rounded-lg object-cover ring-1 ring-border" />
+          <div>
+            <h2 className="text-lg">Photo details</h2>
+            <p className="text-xs text-muted-foreground">
+              Shown when a visitor opens this photo under “{parent.name}”.
+            </p>
+          </div>
+        </div>
+
+        <Field label="Name" value={form.name} onChange={set("name")} />
+        <Field label="Price (leave empty to hide)" value={form.price} onChange={set("price")} />
+        <Field
+          label="Description"
+          textarea
+          value={form.description}
+          onChange={set("description")}
+        />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field label="Size" value={form.size} onChange={set("size")} />
+          <Field label="Type / material" value={form.material} onChange={set("material")} />
+          <Field label="Best for" value={form.placement} onChange={set("placement")} />
+        </div>
+        <div className="flex flex-wrap gap-6">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.available}
+              onChange={(e) => setForm({ ...form, available: e.target.checked })}
+            />
+            Available
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.visible}
+              onChange={(e) => setForm({ ...form, visible: e.target.checked })}
+            />
+            Show on website
+          </label>
+        </div>
+
+        <div className="flex flex-wrap gap-3 pt-2">
+          <button type="button" className={btn} disabled={busy} onClick={save}>
+            Save details
+          </button>
+          <button
+            type="button"
+            className="rounded-full border border-border px-5 py-2.5 text-sm"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          {existing ? (
+            <button
+              type="button"
+              disabled={busy}
+              className="rounded-full border border-destructive px-5 py-2.5 text-sm text-destructive"
+              onClick={removeDetails}
+            >
+              Remove details
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function TipsPanel() {
   const qc = useQueryClient();
