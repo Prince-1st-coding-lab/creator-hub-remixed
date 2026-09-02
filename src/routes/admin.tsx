@@ -715,33 +715,8 @@ function ProductsPanel() {
             />
           </div>
 
-          <label className="block text-sm">
-            <span className="font-medium">Belongs to category</span>
-            <select
-              className={input}
-              value={p.parent_id ?? ""}
-              onChange={(e) => update(p.id, { parent_id: e.target.value || null })}
-            >
-              <option value="">Top-level category (shows in shop)</option>
-              {items
-                .filter((c) => c.id !== p.id && !c.parent_id)
-                .map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-            </select>
-          </label>
           <div className="flex flex-wrap items-center gap-6">
-            <label className="text-sm">
-              <span className="font-medium">Position</span>
-              <input
-                type="number"
-                className={input}
-                value={p.position}
-                onChange={(e) => update(p.id, { position: Number(e.target.value) })}
-              />
-            </label>
+
             <label className="flex items-center gap-2 pt-5 text-sm">
               <input
                 type="checkbox"
