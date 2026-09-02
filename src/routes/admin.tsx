@@ -684,7 +684,12 @@ function ProductsPanel() {
             label="Product gallery images"
             value={p.gallery ?? []}
             onChange={(v) => update(p.id, { gallery: v })}
+            onImageClick={(src) => setEditing({ parent: p, src })}
+            detailFor={(src) =>
+              items.find((c) => c.parent_id === p.id && c.image_url === src)?.name ?? null
+            }
           />
+
 
           <Field
             label="Product page text (extra details)"
