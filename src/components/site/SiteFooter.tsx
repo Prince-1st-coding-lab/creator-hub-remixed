@@ -16,12 +16,11 @@ export function SiteFooter({
             <img
               src={LOGO_SRC}
               alt="G Modern Creativity Ltd logo"
-              width={40}
-              height={40}
+              width={1079}
+              height={873}
               loading="lazy"
-              className="h-10 w-10 rounded-full object-cover ring-1 ring-border"
+              className="h-14 w-auto object-contain"
             />
-            <span className="font-display text-base font-semibold">G Modern Creativity Ltd</span>
           </div>
           <p className="script-accent mt-3 text-xl">{settings.tagline}</p>
         </div>
