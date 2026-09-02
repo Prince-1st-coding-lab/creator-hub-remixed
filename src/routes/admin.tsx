@@ -9,13 +9,11 @@ import { Toaster } from "@/components/ui/sonner";
 import {
   allProductsQuery,
   allServicesQuery,
-  allTipsQuery,
   settingsQuery,
   LOGO_SRC,
   type Product,
   type Service,
   type SiteSettings,
-  type Tip,
 } from "@/lib/site-data";
 
 export const Route = createFileRoute("/admin")({
@@ -67,7 +65,7 @@ function AdminPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<"hero" | "services" | "shop" | "tips" | "contact">("hero");
+  const [tab, setTab] = useState<"hero" | "services" | "shop" | "contact">("hero");
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
@@ -123,7 +121,7 @@ function AdminPage() {
         ) : (
           <>
             <nav className="mb-6 flex flex-wrap gap-2">
-              {(["hero", "services", "shop", "tips", "contact"] as const).map((t) => (
+              {(["hero", "services", "shop", "contact"] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -141,7 +139,6 @@ function AdminPage() {
             {tab === "hero" || tab === "contact" ? <SettingsPanel tab={tab} /> : null}
             {tab === "services" ? <ServicesPanel /> : null}
             {tab === "shop" ? <ProductsPanel /> : null}
-            {tab === "tips" ? <TipsPanel /> : null}
           </>
         )}
       </main>
@@ -958,109 +955,6 @@ function GalleryItemEditor({
           ) : null}
         </div>
       </div>
-    </div>
-  );
-}
-
-
-function TipsPanel() {
-  const qc = useQueryClient();
-  const { data } = useQuery(allTipsQuery);
-  const [items, setItems] = useState<Tip[]>([]);
-  useEffect(() => {
-    if (data) setItems(data);
-  }, [data]);
-
-  const update = (id: string, patch: Partial<Tip>) =>
-    setItems((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
-
-  const refresh = () => qc.invalidateQueries({ queryKey: ["tips"] });
-
-  const save = async (t: Tip) => {
-    const { error } = await supabase
-      .from("tips")
-      .update({
-        title: t.title,
-        body: t.body,
-        image_url: t.image_url,
-        position: t.position,
-        visible: t.visible,
-      })
-      .eq("id", t.id);
-    if (error) { toast.error(error.message); return; }
-    refresh();
-    toast.success("Tip saved");
-  };
-
-  const add = async () => {
-    const { error } = await supabase
-      .from("tips")
-      .insert({ title: "New tip", position: items.length + 1, visible: false });
-    if (error) { toast.error(error.message); return; }
-    refresh();
-    toast.success("Tip added");
-  };
-
-  const remove = async (id: string) => {
-    const { error } = await supabase.from("tips").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
-    setItems((prev) => prev.filter((t) => t.id !== id));
-    refresh();
-    toast.success("Tip removed");
-  };
-
-  return (
-    <div className="space-y-6">
-      <button type="button" className={btn} onClick={add}>
-        Add tip
-      </button>
-      {items.map((t) => (
-        <div key={t.id} className={`${card} space-y-4`}>
-          <Field label="Title" value={t.title} onChange={(v) => update(t.id, { title: v })} />
-          <Field
-            label="Tip text"
-            textarea
-            value={t.body}
-            onChange={(v) => update(t.id, { body: v })}
-          />
-          <ImageField
-            label="Tip image"
-            value={t.image_url}
-            onChange={(v) => update(t.id, { image_url: v })}
-          />
-          <div className="flex flex-wrap items-center gap-6">
-            <label className="text-sm">
-              <span className="font-medium">Position</span>
-              <input
-                type="number"
-                className={input}
-                value={t.position}
-                onChange={(e) => update(t.id, { position: Number(e.target.value) })}
-              />
-            </label>
-            <label className="flex items-center gap-2 pt-5 text-sm">
-              <input
-                type="checkbox"
-                checked={t.visible}
-                onChange={(e) => update(t.id, { visible: e.target.checked })}
-              />
-              Visible on website
-            </label>
-          </div>
-          <div className="flex gap-3">
-            <button type="button" className={btn} onClick={() => save(t)}>
-              Save tip
-            </button>
-            <button
-              type="button"
-              className="rounded-full border border-destructive px-5 py-2.5 text-sm text-destructive"
-              onClick={() => remove(t.id)}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
