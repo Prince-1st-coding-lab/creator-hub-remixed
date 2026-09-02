@@ -14,7 +14,7 @@ export const Route = createFileRoute("/shop/")({
       context.queryClient.ensureQueryData(productsQuery),
       context.queryClient.ensureQueryData(servicesQuery),
     ]);
-    return { products };
+    return { products: products.filter((p) => !p.parent_id) };
   },
   head: ({ loaderData }) => ({
     meta: [
