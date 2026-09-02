@@ -690,12 +690,6 @@ function ProductsPanel() {
           />
 
 
-          <Field
-            label="Product page text (extra details)"
-            textarea
-            value={p.details}
-            onChange={(v) => update(p.id, { details: v })}
-          />
 
           <div className="grid gap-4 sm:grid-cols-3">
             <Field
