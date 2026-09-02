@@ -655,14 +655,12 @@ function ProductsPanel() {
       <button type="button" className={btn} onClick={add}>
         Add product
       </button>
-      {items.map((p) => (
+      {items
+        .filter((p) => !p.parent_id)
+        .map((p) => (
         <div key={p.id} className={`${card} space-y-4`}>
           <Field label="Name" value={p.name} onChange={(v) => update(p.id, { name: v })} />
-          <Field
-            label="Page address (slug)"
-            value={p.slug}
-            onChange={(v) => update(p.id, { slug: v })}
-          />
+
           <Field
             label="Description"
             textarea
