@@ -9,7 +9,6 @@ import {
   productsQuery,
   servicesQuery,
   settingsQuery,
-  tipsQuery,
   whatsappLink,
 } from "@/lib/site-data";
 
@@ -37,7 +36,6 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(settingsQuery),
       context.queryClient.ensureQueryData(servicesQuery),
       context.queryClient.ensureQueryData(productsQuery),
-      context.queryClient.ensureQueryData(tipsQuery),
     ]);
   },
   component: Index,
@@ -47,7 +45,6 @@ function Index() {
   const { data: settings } = useSuspenseQuery(settingsQuery);
   const { data: services } = useSuspenseQuery(servicesQuery);
   const { data: products } = useSuspenseQuery(productsQuery);
-  const { data: tips } = useSuspenseQuery(tipsQuery);
   const preview = products.filter((p) => !p.parent_id).slice(0, 6);
 
   return (
@@ -175,39 +172,6 @@ function Index() {
         </div>
       </section>
 
-      {/* Tips */}
-      {tips.length > 0 ? (
-        <section id="tips" className="mx-auto max-w-6xl px-5 py-20">
-          <h2 className="text-3xl sm:text-4xl">Tips</h2>
-          <div className="rule-gold mt-5 max-w-xs" />
-          <p className="mt-4 max-w-xl text-muted-foreground">
-            Simple advice from our team on caring for your space.
-          </p>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {tips.map((t) => (
-              <article
-                key={t.id}
-                className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)]"
-              >
-                {t.image_url ? (
-                  <img
-                    src={t.image_url}
-                    alt={t.title}
-                    loading="lazy"
-                    width={1200}
-                    height={912}
-                    className="h-44 w-full object-cover"
-                  />
-                ) : null}
-                <div className="p-6">
-                  <h3 className="text-lg">{t.title}</h3>
-                  <p className="mt-2 text-muted-foreground">{t.body}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
 
       {/* Delivery & location */}
       <section className="mx-auto max-w-6xl px-5 py-20">
