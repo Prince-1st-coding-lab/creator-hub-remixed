@@ -48,7 +48,7 @@ function Index() {
   const { data: services } = useSuspenseQuery(servicesQuery);
   const { data: products } = useSuspenseQuery(productsQuery);
   const { data: tips } = useSuspenseQuery(tipsQuery);
-  const preview = products.slice(0, 6);
+  const preview = products.filter((p) => !p.parent_id).slice(0, 6);
 
   return (
     <div className="min-h-screen bg-background">
