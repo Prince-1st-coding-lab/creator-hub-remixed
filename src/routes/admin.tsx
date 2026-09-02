@@ -295,10 +295,14 @@ function GalleryField({
   label,
   value,
   onChange,
+  onImageClick,
+  detailFor,
 }: {
   label: string;
   value: string[];
   onChange: (v: string[]) => void;
+  onImageClick?: (src: string) => void;
+  detailFor?: (src: string) => string | null;
 }) {
   const [uploading, setUploading] = useState(false);
 
@@ -319,31 +323,56 @@ function GalleryField({
   return (
     <div className="text-sm">
       <span className="font-medium">{label}</span>
+      {onImageClick ? (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Click a photo to add or edit its details (name, price, size…).
+        </p>
+      ) : null}
       {value.length ? (
         <div className="mt-2 flex flex-wrap gap-3">
-          {value.map((src, i) => (
-            <div key={`${src}-${i}`} className="relative">
-              <img
-                src={src}
-                alt=""
-                className="h-20 w-20 rounded-lg object-cover ring-1 ring-border"
-              />
-              <button
-                type="button"
-                aria-label="Remove image"
-                className="absolute -right-2 -top-2 h-6 w-6 rounded-full border border-border bg-background text-xs"
-                onClick={() => {
-                  onChange(value.filter((_, idx) => idx !== i));
-                  void deleteUploadedImage(src);
-                  toast.success("Image removed — remember to save");
-                }}
-              >
-                ×
-              </button>
-            </div>
-          ))}
+          {value.map((src, i) => {
+            const detail = detailFor?.(src) ?? null;
+            return (
+              <div key={`${src}-${i}`} className="relative">
+                <button
+                  type="button"
+                  onClick={() => onImageClick?.(src)}
+                  aria-label={onImageClick ? "Edit photo details" : undefined}
+                  className={onImageClick ? "block cursor-pointer" : "block cursor-default"}
+                >
+                  <img
+                    src={src}
+                    alt=""
+                    className="h-20 w-20 rounded-lg object-cover ring-1 ring-border"
+                  />
+                  {onImageClick ? (
+                    <span
+                      className={`mt-1 block max-w-20 truncate text-[10px] ${
+                        detail ? "text-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      {detail ?? "Add details"}
+                    </span>
+                  ) : null}
+                </button>
+                <button
+                  type="button"
+                  aria-label="Remove image"
+                  className="absolute -right-2 -top-2 h-6 w-6 rounded-full border border-border bg-background text-xs"
+                  onClick={() => {
+                    onChange(value.filter((_, idx) => idx !== i));
+                    void deleteUploadedImage(src);
+                    toast.success("Image removed — remember to save");
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
         </div>
       ) : null}
+
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-medium">
           {uploading ? "Uploading…" : "Upload images"}
