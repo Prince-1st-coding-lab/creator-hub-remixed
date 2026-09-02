@@ -776,9 +776,192 @@ function ProductsPanel() {
           </div>
         </div>
       ))}
+      {editing ? (
+        <GalleryItemEditor
+          parent={editing.parent}
+          src={editing.src}
+          existing={
+            items.find(
+              (c) => c.parent_id === editing.parent.id && c.image_url === editing.src,
+            ) ?? null
+          }
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            refresh();
+          }}
+        />
+      ) : null}
     </div>
   );
 }
+
+type GalleryDetail = {
+  name: string;
+  price: string;
+  description: string;
+  size: string;
+  material: string;
+  placement: string;
+  available: boolean;
+  visible: boolean;
+};
+
+function GalleryItemEditor({
+  parent,
+  src,
+  existing,
+  onClose,
+  onSaved,
+}: {
+  parent: Product;
+  src: string;
+  existing: Product | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState<GalleryDetail>({
+    name: existing?.name ?? "",
+    price: existing?.price ?? "",
+    description: existing?.description ?? "",
+    size: existing?.size ?? "",
+    material: existing?.material ?? "",
+    placement: existing?.placement ?? "",
+    available: existing?.available ?? true,
+    visible: existing?.visible ?? true,
+  });
+  const [busy, setBusy] = useState(false);
+
+  const set = (k: keyof GalleryDetail) => (v: string) => setForm({ ...form, [k]: v });
+
+  const save = async () => {
+    if (!form.name.trim()) {
+      toast.error("Give this photo a name first");
+      return;
+    }
+    setBusy(true);
+    const payload = {
+      name: form.name,
+      price: form.price,
+      description: form.description,
+      size: form.size,
+      material: form.material,
+      placement: form.placement,
+      available: form.available,
+      visible: form.visible,
+      image_url: src,
+      parent_id: parent.id,
+    };
+    const { error } = existing
+      ? await supabase.from("products").update(payload).eq("id", existing.id)
+      : await supabase.from("products").insert({
+          ...payload,
+          slug: `${parent.slug || "item"}-${Math.random().toString(36).slice(2, 8)}`,
+          position: 0,
+        });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Photo details saved");
+    onSaved();
+  };
+
+  const removeDetails = async () => {
+    if (!existing) return;
+    setBusy(true);
+    const { error } = await supabase.from("products").delete().eq("id", existing.id);
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Photo details removed");
+    onSaved();
+  };
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Photo details"
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-foreground/60 p-4 backdrop-blur-sm"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="my-8 w-full max-w-lg space-y-4 rounded-2xl border border-border bg-card p-6"
+      >
+        <div className="flex items-start gap-4">
+          <img src={src} alt="" className="h-24 w-24 rounded-lg object-cover ring-1 ring-border" />
+          <div>
+            <h2 className="text-lg">Photo details</h2>
+            <p className="text-xs text-muted-foreground">
+              Shown when a visitor opens this photo under “{parent.name}”.
+            </p>
+          </div>
+        </div>
+
+        <Field label="Name" value={form.name} onChange={set("name")} />
+        <Field label="Price (leave empty to hide)" value={form.price} onChange={set("price")} />
+        <Field
+          label="Description"
+          textarea
+          value={form.description}
+          onChange={set("description")}
+        />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field label="Size" value={form.size} onChange={set("size")} />
+          <Field label="Type / material" value={form.material} onChange={set("material")} />
+          <Field label="Best for" value={form.placement} onChange={set("placement")} />
+        </div>
+        <div className="flex flex-wrap gap-6">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.available}
+              onChange={(e) => setForm({ ...form, available: e.target.checked })}
+            />
+            Available
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.visible}
+              onChange={(e) => setForm({ ...form, visible: e.target.checked })}
+            />
+            Show on website
+          </label>
+        </div>
+
+        <div className="flex flex-wrap gap-3 pt-2">
+          <button type="button" className={btn} disabled={busy} onClick={save}>
+            Save details
+          </button>
+          <button
+            type="button"
+            className="rounded-full border border-border px-5 py-2.5 text-sm"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          {existing ? (
+            <button
+              type="button"
+              disabled={busy}
+              className="rounded-full border border-destructive px-5 py-2.5 text-sm text-destructive"
+              onClick={removeDetails}
+            >
+              Remove details
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function TipsPanel() {
   const qc = useQueryClient();
