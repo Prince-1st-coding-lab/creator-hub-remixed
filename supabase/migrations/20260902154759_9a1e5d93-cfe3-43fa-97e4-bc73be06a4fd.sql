@@ -1,0 +1,5 @@
+ALTER TABLE public.products
+  ADD COLUMN IF NOT EXISTS size text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS material text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS placement text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS parent_id uuid REFERENCES public.products(id) ON DELETE SET NULL;
