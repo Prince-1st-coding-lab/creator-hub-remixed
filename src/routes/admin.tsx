@@ -594,6 +594,8 @@ function ProductsPanel() {
   const qc = useQueryClient();
   const { data } = useQuery(allProductsQuery);
   const [items, setItems] = useState<Product[]>([]);
+  const [editing, setEditing] = useState<{ parent: Product; src: string } | null>(null);
+
   useEffect(() => {
     if (data) setItems(data);
   }, [data]);
