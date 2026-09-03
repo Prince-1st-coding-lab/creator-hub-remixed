@@ -26,12 +26,15 @@ export const Route = createFileRoute("/api/public/site-image/$")({
         );
 
         if (!upstream.ok || !upstream.body) {
-          return new Response("Not found", { status: 404 });
+          return new Response("Image unavailable", { status: upstream.status });
         }
 
-        return new Response(await upstream.arrayBuffer(), {
+        return new Response(upstream.body, {
           headers: {
             "Content-Type": upstream.headers.get("content-type") ?? "image/jpeg",
+            ...(upstream.headers.get("content-length")
+              ? { "Content-Length": upstream.headers.get("content-length") as string }
+              : {}),
             "Cache-Control": "public, max-age=31536000, immutable",
           },
         });

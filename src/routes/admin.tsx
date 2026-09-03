@@ -276,14 +276,28 @@ async function uploadImage(file: File): Promise<string | null> {
     toast.error(error.message);
     return null;
   }
-  return `/api/public/site-image/${path}`;
+  const { data } = supabase.storage.from("site-images").getPublicUrl(path);
+  return data.publicUrl;
 }
 
 const PROXY_PREFIX = "/api/public/site-image/";
+const PUBLIC_STORAGE_MARKER = "/storage/v1/object/public/site-images/";
+
+function uploadedImagePath(url: string) {
+  if (url.startsWith(PROXY_PREFIX)) return url.slice(PROXY_PREFIX.length);
+  try {
+    const parsed = new URL(url);
+    const markerIndex = parsed.pathname.indexOf(PUBLIC_STORAGE_MARKER);
+    if (markerIndex < 0) return null;
+    return decodeURIComponent(parsed.pathname.slice(markerIndex + PUBLIC_STORAGE_MARKER.length));
+  } catch {
+    return null;
+  }
+}
 
 async function deleteUploadedImage(url: string) {
-  if (!url.startsWith(PROXY_PREFIX)) return;
-  const path = url.slice(PROXY_PREFIX.length);
+  const path = uploadedImagePath(url);
+  if (!path) return;
   const { error } = await supabase.storage.from("site-images").remove([path]);
   if (error) toast.error(error.message);
 }
