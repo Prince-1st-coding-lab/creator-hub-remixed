@@ -30,7 +30,8 @@ export const Route = createFileRoute("/")({
     const title = "G Modern Creativity Ltd | Space Decoration in Rwanda";
     const description =
       "We transform your space — home, office, hotel, shop, coffee shop, school and more — with landscaping, interior design, event decoration and decor pieces. Delivered across Rwanda.";
-    const image = absoluteUrl(loaderData?.settings.hero_image_url);
+    // Share-sized (1200x630) rendition of the hero image the page shows.
+    const image = absoluteUrl("/images/og-home.jpg");
     return {
       meta: [
         { title },
