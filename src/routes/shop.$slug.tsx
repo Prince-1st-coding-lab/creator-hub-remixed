@@ -38,7 +38,7 @@ export const Route = createFileRoute("/shop/$slug")({
     const title = `${loaderData.name} | Shop — G Modern Creativity Ltd`;
     const description =
       loaderData.description || `${loaderData.name} from G Modern Creativity Ltd, delivered across Rwanda.`;
-    const url = `/shop/${loaderData.slug}`;
+    const url = `https://creator-hub-remixed.lovable.app/shop/${loaderData.slug}`;
     return {
       meta: [
         { title },

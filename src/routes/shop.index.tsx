@@ -30,10 +30,10 @@ export const Route = createFileRoute("/shop/")({
         content: "Pots, vases, flowers, stands and gift articles, delivered across Rwanda.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/shop" },
+      { property: "og:url", content: "https://creator-hub-remixed.lovable.app/shop" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/shop" }],
+    links: [{ rel: "canonical", href: "https://creator-hub-remixed.lovable.app/shop" }],
     scripts: loaderData?.products?.length
       ? [
           {

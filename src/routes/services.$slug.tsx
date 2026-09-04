@@ -47,7 +47,7 @@ export const Route = createFileRoute("/services/$slug")({
       };
     }
     const title = `${loaderData.name} | G Modern Creativity Ltd`;
-    const url = `/services/${loaderData.slug}`;
+    const url = `https://creator-hub-remixed.lovable.app/services/${loaderData.slug}`;
     return {
       meta: [
         { title },
