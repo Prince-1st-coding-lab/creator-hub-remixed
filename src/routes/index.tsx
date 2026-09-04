@@ -12,31 +12,67 @@ import {
   whatsappLink,
 } from "@/lib/site-data";
 
+const BASE_URL = "https://creator-hub-remixed.lovable.app";
+
+const absoluteUrl = (value: string | null | undefined) =>
+  value ? (value.startsWith("http") ? value : `${BASE_URL}${value}`) : null;
+
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "G Modern Creativity Ltd | Space Decoration in Rwanda" },
-      {
-        name: "description",
-        content:
-          "We transform your space — home, office, hotel, shop, coffee shop, school and more — with landscaping, interior design, event decoration and decor pieces. Delivered across Rwanda.",
-      },
-      { property: "og:title", content: "G Modern Creativity Ltd | Space Decoration in Rwanda" },
-      {
-        property: "og:description",
-        content:
-          "Make Your Space a place of Memories. Landscaping, interior design, event decoration and decor pieces, delivered across Rwanda.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const title = "G Modern Creativity Ltd | Space Decoration in Rwanda";
+    const description =
+      "We transform your space — home, office, hotel, shop, coffee shop, school and more — with landscaping, interior design, event decoration and decor pieces. Delivered across Rwanda.";
+    const image = absoluteUrl(loaderData?.settings.hero_image_url);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        {
+          property: "og:description",
+          content:
+            "Make Your Space a place of Memories. Landscaping, interior design, event decoration and decor pieces, delivered across Rwanda.",
+        },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: `${BASE_URL}/` },
+        ...(image ? [{ property: "og:image", content: image }] : []),
+        { name: "twitter:card", content: "summary_large_image" },
+        ...(image ? [{ name: "twitter:image", content: image }] : []),
+      ],
+      links: [{ rel: "canonical", href: `${BASE_URL}/` }],
+      scripts: loaderData
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "LocalBusiness",
+                name: "G Modern Creativity Ltd",
+                description,
+                url: `${BASE_URL}/`,
+                ...(image ? { image } : {}),
+                telephone: loaderData.settings.phone,
+                email: loaderData.settings.email,
+                address: {
+                  "@type": "PostalAddress",
+                  addressCountry: "RW",
+                  description: loaderData.settings.location_text,
+                },
+                areaServed: { "@type": "Country", name: "Rwanda" },
+                knowsAbout: loaderData.services.map((s) => s.name),
+              }),
+            },
+          ]
+        : [],
+    };
+  },
   loader: async ({ context }) => {
-    await Promise.all([
+    const [settings, services] = await Promise.all([
       context.queryClient.ensureQueryData(settingsQuery),
       context.queryClient.ensureQueryData(servicesQuery),
       context.queryClient.ensureQueryData(productsQuery),
     ]);
+    return { settings, services };
   },
   component: Index,
 });
