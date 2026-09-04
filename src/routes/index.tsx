@@ -18,6 +18,14 @@ const absoluteUrl = (value: string | null | undefined) =>
   value ? (value.startsWith("http") ? value : `${BASE_URL}${value}`) : null;
 
 export const Route = createFileRoute("/")({
+  loader: async ({ context }) => {
+    const [settings, services] = await Promise.all([
+      context.queryClient.ensureQueryData(settingsQuery),
+      context.queryClient.ensureQueryData(servicesQuery),
+      context.queryClient.ensureQueryData(productsQuery),
+    ]);
+    return { settings, services };
+  },
   head: ({ loaderData }) => {
     const title = "G Modern Creativity Ltd | Space Decoration in Rwanda";
     const description =
@@ -59,20 +67,12 @@ export const Route = createFileRoute("/")({
                   description: loaderData.settings.location_text,
                 },
                 areaServed: { "@type": "Country", name: "Rwanda" },
-                knowsAbout: loaderData.services.map((s) => s.name),
+                knowsAbout: loaderData.services.map((s: { name: string }) => s.name),
               }),
             },
           ]
         : [],
     };
-  },
-  loader: async ({ context }) => {
-    const [settings, services] = await Promise.all([
-      context.queryClient.ensureQueryData(settingsQuery),
-      context.queryClient.ensureQueryData(servicesQuery),
-      context.queryClient.ensureQueryData(productsQuery),
-    ]);
-    return { settings, services };
   },
   component: Index,
 });
