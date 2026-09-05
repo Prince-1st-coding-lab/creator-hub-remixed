@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { X, ChevronLeft, ChevronRight, MessageCircle, ExternalLink } from "lucide-react";
-
-import { whatsappLink } from "@/lib/site-data";
+import { X, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 
 export type QuickViewItem = {
   name?: string | null;
