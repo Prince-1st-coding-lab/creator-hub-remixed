@@ -219,11 +219,7 @@ function ProductPage() {
           </a>
         </div>
 
-        <ProductQuickView
-          item={openItem}
-          whatsapp={settings.whatsapp}
-          onClose={() => setOpenItem(null)}
-        />
+        <ProductQuickView item={openItem} onClose={() => setOpenItem(null)} />
 
         {others.length ? (
           <div className="mt-16">
