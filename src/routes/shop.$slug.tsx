@@ -92,7 +92,7 @@ function ProductPage() {
       images: [src],
     }));
     const childImages = new Set(childItems.flatMap((c) => c.images));
-    return [...childItems, ...galleryItems.filter((g) => !childImages.has(g.images[0]))];
+    return [...childItems, ...galleryItems.filter((g) => !childImages.has(g.images[0]!))];
   }, [product, products]);
 
   const chips = useMemo(() => {
