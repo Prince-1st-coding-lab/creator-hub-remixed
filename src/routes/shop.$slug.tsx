@@ -184,7 +184,7 @@ function ProductPage() {
                 key={`${item.name}-${i}`}
                 type="button"
                 onClick={() => setOpenItem(item)}
-                aria-label={`Open details for ${item.name}`}
+                aria-label={item.name ? `Open details for ${item.name}` : "View photo"}
                 className="group relative block w-full break-inside-avoid overflow-hidden rounded-2xl border border-border text-left shadow-[var(--shadow-soft)]"
               >
                 <img
