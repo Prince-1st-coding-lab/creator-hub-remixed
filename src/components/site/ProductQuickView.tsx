@@ -5,7 +5,7 @@ import { X, ChevronLeft, ChevronRight, MessageCircle, ExternalLink } from "lucid
 import { whatsappLink } from "@/lib/site-data";
 
 export type QuickViewItem = {
-  name: string;
+  name?: string | null;
   price?: string | null;
   description?: string | null;
   size?: string | null;
