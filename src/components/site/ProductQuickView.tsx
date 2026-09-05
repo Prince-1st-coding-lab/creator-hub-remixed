@@ -91,7 +91,7 @@ export function ProductQuickView({
               <img
                 src={item.images[active]}
                 alt={`${displayName} photo ${active + 1}`}
-                className="h-72 w-full object-cover sm:h-96"
+                className="max-h-[50vh] w-full object-contain md:max-h-[60vh]"
               />
               {count > 1 ? (
                 <>
