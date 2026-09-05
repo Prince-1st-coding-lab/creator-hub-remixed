@@ -60,16 +60,13 @@ export function ProductQuickView({
     { label: "Best for", value: item.placement },
     {
       label: "Availability",
-      value:
-        item.available === null || item.available === undefined
-          ? null
-          : item.available
-            ? "Available"
-            : "Currently out of stock",
+      value: item.available === false ? "Currently out of stock" : null,
     },
   ].filter((s) => s.value);
 
-  const orderMessage = `Hello G Modern Creativity, I would like to order: ${item.name}${
+  const hasDetails = Boolean(item.name || item.price || item.description || specs.length);
+
+  const orderMessage = `Hello G Modern Creativity, I would like to order: ${item.name ?? "an item"}${
     item.size ? ` (${item.size})` : ""
   }`;
 
@@ -149,7 +146,7 @@ export function ProductQuickView({
           </div>
 
           <div className="p-6">
-            <h2 className="text-2xl">{item.name}</h2>
+            {item.name ? <h2 className="text-2xl">{item.name}</h2> : null}
             {item.price ? (
               <p className="mt-2 font-display text-lg text-leaf">{item.price}</p>
             ) : null}
