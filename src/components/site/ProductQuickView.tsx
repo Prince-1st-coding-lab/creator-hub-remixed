@@ -159,16 +159,6 @@ export function ProductQuickView({
               </dl>
             ) : null}
 
-            <a
-              href={whatsappLink(whatsapp, orderMessage)}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              <MessageCircle className="h-4 w-4" />
-              Make Your Order
-            </a>
-
             {item.slug ? (
               <div className="mt-4">
                 <Link
