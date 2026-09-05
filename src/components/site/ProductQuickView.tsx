@@ -5,7 +5,7 @@ import { X, ChevronLeft, ChevronRight, MessageCircle, ExternalLink } from "lucid
 import { whatsappLink } from "@/lib/site-data";
 
 export type QuickViewItem = {
-  name: string;
+  name?: string | null;
   price?: string | null;
   description?: string | null;
   size?: string | null;
@@ -60,24 +60,23 @@ export function ProductQuickView({
     { label: "Best for", value: item.placement },
     {
       label: "Availability",
-      value:
-        item.available === null || item.available === undefined
-          ? null
-          : item.available
-            ? "Available"
-            : "Currently out of stock",
+      value: item.available === false ? "Currently out of stock" : null,
     },
   ].filter((s) => s.value);
 
-  const orderMessage = `Hello G Modern Creativity, I would like to order: ${item.name}${
+  const hasDetails = Boolean(item.name || item.price || item.description || specs.length);
+
+  const orderMessage = `Hello G Modern Creativity, I would like to order: ${item.name ?? "an item"}${
     item.size ? ` (${item.size})` : ""
   }`;
+
+  const displayName = item.name ?? "Product photo";
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={item.name}
+      aria-label={displayName}
       onClick={onClose}
       className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-soil/90 p-4 backdrop-blur-sm"
     >
@@ -99,7 +98,7 @@ export function ProductQuickView({
             <div className="relative overflow-hidden rounded-xl">
               <img
                 src={item.images[active]}
-                alt={`${item.name} photo ${active + 1}`}
+                alt={`${displayName} photo ${active + 1}`}
                 className="h-72 w-full object-cover sm:h-96"
               />
               {count > 1 ? (
@@ -130,7 +129,7 @@ export function ProductQuickView({
                     key={`${src}-${i}`}
                     type="button"
                     onClick={() => setActive(i)}
-                    aria-label={`Show ${item.name} photo ${i + 1}`}
+                    aria-label={`Show ${displayName} photo ${i + 1}`}
                     aria-current={i === active}
                     className={`shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
                       i === active ? "border-primary" : "border-transparent"
@@ -138,7 +137,7 @@ export function ProductQuickView({
                   >
                     <img
                       src={src}
-                      alt={`${item.name} thumbnail ${i + 1}`}
+                      alt={`${displayName} thumbnail ${i + 1}`}
                       loading="lazy"
                       className="h-14 w-14 object-cover"
                     />
@@ -149,7 +148,7 @@ export function ProductQuickView({
           </div>
 
           <div className="p-6">
-            <h2 className="text-2xl">{item.name}</h2>
+            {item.name ? <h2 className="text-2xl">{item.name}</h2> : null}
             {item.price ? (
               <p className="mt-2 font-display text-lg text-leaf">{item.price}</p>
             ) : null}

@@ -68,31 +68,31 @@ function ProductPage() {
   const items = useMemo<QuickViewItem[]>(() => {
     if (!product) return [];
     const children = products.filter((p) => p.parent_id === product.id);
-    if (children.length) {
-      return children.map((c) => ({
-        name: c.name,
-        price: c.price,
-        description: c.description,
-        size: c.size,
-        material: c.material,
-        placement: c.placement,
-        available: c.available,
-        slug: c.slug,
-        images: [c.image_url, ...(c.gallery ?? [])].filter(Boolean),
-      }));
-    }
+    const childItems: QuickViewItem[] = children.map((c) => ({
+      name: c.name || null,
+      price: c.price || null,
+      description: c.description || null,
+      size: c.size || null,
+      material: c.material || null,
+      placement: c.placement || null,
+      available: c.available === false ? false : null,
+      slug: c.slug || null,
+      images: [c.image_url, ...(c.gallery ?? [])].filter(Boolean),
+    }));
     const gallery = [product.image_url, ...(product.gallery ?? [])].filter(Boolean);
-    return gallery.map((src, i) => ({
-      name: gallery.length > 1 ? `${product.name} ${i + 1}` : product.name,
-      price: product.price,
-      description: product.description,
-      size: product.size,
-      material: product.material,
-      placement: product.placement,
-      available: product.available,
+    const galleryItems: QuickViewItem[] = gallery.map((src) => ({
+      name: null,
+      price: null,
+      description: null,
+      size: null,
+      material: null,
+      placement: null,
+      available: null,
       slug: null,
       images: [src],
     }));
+    const childImages = new Set(childItems.flatMap((c) => c.images));
+    return [...childItems, ...galleryItems.filter((g) => !childImages.has(g.images[0]!))];
   }, [product, products]);
 
   const chips = useMemo(() => {
@@ -184,7 +184,7 @@ function ProductPage() {
                 key={`${item.name}-${i}`}
                 type="button"
                 onClick={() => setOpenItem(item)}
-                aria-label={`Open details for ${item.name}`}
+                aria-label={item.name ? `Open details for ${item.name}` : "View photo"}
                 className="group relative block w-full break-inside-avoid overflow-hidden rounded-2xl border border-border text-left shadow-[var(--shadow-soft)]"
               >
                 <img
