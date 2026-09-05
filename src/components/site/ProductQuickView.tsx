@@ -98,7 +98,7 @@ export function ProductQuickView({
             <div className="relative overflow-hidden rounded-xl">
               <img
                 src={item.images[active]}
-                alt={`${item.name} photo ${active + 1}`}
+                alt={`${displayName} photo ${active + 1}`}
                 className="h-72 w-full object-cover sm:h-96"
               />
               {count > 1 ? (
@@ -129,7 +129,7 @@ export function ProductQuickView({
                     key={`${src}-${i}`}
                     type="button"
                     onClick={() => setActive(i)}
-                    aria-label={`Show ${item.name} photo ${i + 1}`}
+                    aria-label={`Show ${displayName} photo ${i + 1}`}
                     aria-current={i === active}
                     className={`shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
                       i === active ? "border-primary" : "border-transparent"
@@ -137,7 +137,7 @@ export function ProductQuickView({
                   >
                     <img
                       src={src}
-                      alt={`${item.name} thumbnail ${i + 1}`}
+                      alt={`${displayName} thumbnail ${i + 1}`}
                       loading="lazy"
                       className="h-14 w-14 object-cover"
                     />
