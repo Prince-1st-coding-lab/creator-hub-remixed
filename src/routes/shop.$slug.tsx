@@ -193,12 +193,6 @@ function ProductPage() {
                   loading="lazy"
                   className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-72"
                 />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-soil/90 via-soil/40 to-transparent p-4 pt-10 transition-transform duration-300 group-hover:-translate-y-1">
-                  <p className="truncate text-sm font-medium text-secondary">{item.name}</p>
-                  {item.price ? (
-                    <p className="mt-0.5 font-display text-sm text-secondary/85">{item.price}</p>
-                  ) : null}
-                </div>
               </button>
             ))}
           </div>
