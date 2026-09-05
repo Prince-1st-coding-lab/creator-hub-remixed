@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { X, ChevronLeft, ChevronRight, MessageCircle, ExternalLink } from "lucide-react";
-
-import { whatsappLink } from "@/lib/site-data";
+import { X, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 
 export type QuickViewItem = {
   name?: string | null;
@@ -18,11 +16,9 @@ export type QuickViewItem = {
 
 export function ProductQuickView({
   item,
-  whatsapp,
   onClose,
 }: {
   item: QuickViewItem | null;
-  whatsapp: string;
   onClose: () => void;
 }) {
   const [active, setActive] = useState(0);
@@ -66,10 +62,6 @@ export function ProductQuickView({
 
   const hasDetails = Boolean(item.name || item.price || item.description || specs.length);
 
-  const orderMessage = `Hello G Modern Creativity, I would like to order: ${item.name ?? "an item"}${
-    item.size ? ` (${item.size})` : ""
-  }`;
-
   const displayName = item.name ?? "Product photo";
 
   return (
@@ -99,7 +91,7 @@ export function ProductQuickView({
               <img
                 src={item.images[active]}
                 alt={`${displayName} photo ${active + 1}`}
-                className="h-72 w-full object-cover sm:h-96"
+                className="max-h-[50vh] w-full object-contain md:max-h-[60vh]"
               />
               {count > 1 ? (
                 <>
@@ -166,16 +158,6 @@ export function ProductQuickView({
                 ))}
               </dl>
             ) : null}
-
-            <a
-              href={whatsappLink(whatsapp, orderMessage)}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              <MessageCircle className="h-4 w-4" />
-              Make Your Order
-            </a>
 
             {item.slug ? (
               <div className="mt-4">
