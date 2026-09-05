@@ -16,11 +16,9 @@ export type QuickViewItem = {
 
 export function ProductQuickView({
   item,
-  whatsapp,
   onClose,
 }: {
   item: QuickViewItem | null;
-  whatsapp: string;
   onClose: () => void;
 }) {
   const [active, setActive] = useState(0);
