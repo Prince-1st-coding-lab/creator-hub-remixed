@@ -62,10 +62,6 @@ export function ProductQuickView({
 
   const hasDetails = Boolean(item.name || item.price || item.description || specs.length);
 
-  const orderMessage = `Hello G Modern Creativity, I would like to order: ${item.name ?? "an item"}${
-    item.size ? ` (${item.size})` : ""
-  }`;
-
   const displayName = item.name ?? "Product photo";
 
   return (
