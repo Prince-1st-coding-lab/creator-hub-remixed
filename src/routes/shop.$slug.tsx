@@ -7,12 +7,14 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { ProductQuickView, type QuickViewItem } from "@/components/site/ProductQuickView";
 import {
+  parseVariants,
   productQuery,
   productsQuery,
   servicesQuery,
   settingsQuery,
   whatsappLink,
 } from "@/lib/site-data";
+
 
 
 export const Route = createFileRoute("/shop/$slug")({
@@ -64,6 +66,12 @@ function ProductPage() {
 
   const [filter, setFilter] = useState<string | null>(null);
   const [openItem, setOpenItem] = useState<QuickViewItem | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState(1);
+
+  const variants = useMemo(() => parseVariants(product?.variants), [product]);
+  const selectedVariant = variants.find((v) => v.name === selectedSize) ?? null;
+
 
   const items = useMemo<QuickViewItem[]>(() => {
     if (!product) return [];
@@ -140,6 +148,104 @@ function ProductPage() {
             </p>
           ) : null}
         </div>
+
+        {variants.length ? (
+          <section className="mt-10" aria-labelledby="available-sizes">
+            <h2 id="available-sizes" className="text-2xl">
+              Available Sizes
+            </h2>
+            <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {variants.map((v) => {
+                const active = selectedSize === v.name;
+                const soldOut = v.available === false;
+                return (
+                  <button
+                    key={v.name || v.dimensions}
+                    type="button"
+                    disabled={soldOut}
+                    aria-pressed={active}
+                    onClick={() => setSelectedSize(active ? null : v.name)}
+                    className={`overflow-hidden rounded-2xl border bg-card text-left transition-colors ${
+                      active ? "border-primary ring-2 ring-primary" : "border-border hover:bg-muted"
+                    } ${soldOut ? "opacity-50" : ""}`}
+                  >
+                    {v.image_url ? (
+                      <img
+                        src={v.image_url}
+                        alt={`${v.name} size of ${product.name}`}
+                        loading="lazy"
+                        className="h-32 w-full object-cover sm:h-36"
+                      />
+                    ) : null}
+                    <div className="p-3">
+                      <p className="text-sm font-medium">{v.name}</p>
+                      {v.dimensions ? (
+                        <p className="mt-1 text-xs text-muted-foreground">{v.dimensions}</p>
+                      ) : null}
+                      {v.price ? (
+                        <p className="mt-1 font-display text-sm text-leaf">{v.price}</p>
+                      ) : null}
+                      {soldOut ? (
+                        <p className="mt-1 text-xs text-muted-foreground">Out of stock</p>
+                      ) : null}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-3 rounded-full border border-border px-3 py-2">
+                <button
+                  type="button"
+                  aria-label="Decrease quantity"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="h-7 w-7 rounded-full border border-border text-sm"
+                >
+                  −
+                </button>
+                <span className="min-w-6 text-center text-sm" aria-live="polite">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Increase quantity"
+                  onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+                  className="h-7 w-7 rounded-full border border-border text-sm"
+                >
+                  +
+                </button>
+              </div>
+              <a
+                href={whatsappLink(
+                  settings.whatsapp,
+                  [
+                    "Hello G Modern Creativity,",
+                    "",
+                    "I would like to request a price for:",
+                    "",
+                    `Product: ${product.name}`,
+                    ...(selectedVariant ? [`Size: ${selectedVariant.name}`] : []),
+                    ...(selectedVariant?.dimensions
+                      ? [`Dimensions: ${selectedVariant.dimensions}`]
+                      : []),
+                    `Quantity: ${quantity}`,
+                    "",
+                    "Please send me the price.",
+                  ].join("\n"),
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Request a Price
+              </a>
+            </div>
+          </section>
+        ) : null}
+
+
 
         {chips.length ? (
           <div className="mt-8 flex flex-wrap gap-2">

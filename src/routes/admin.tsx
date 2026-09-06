@@ -9,12 +9,15 @@ import { Toaster } from "@/components/ui/sonner";
 import {
   allProductsQuery,
   allServicesQuery,
+  parseVariants,
   settingsQuery,
   LOGO_SRC,
   type Product,
+  type ProductVariant,
   type Service,
   type SiteSettings,
 } from "@/lib/site-data";
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -631,6 +634,8 @@ function ProductsPanel() {
         material: p.material,
         placement: p.placement,
         parent_id: p.parent_id,
+        variants: p.variants,
+
         available: p.available,
         visible: p.visible,
         position: p.position,
@@ -700,6 +705,13 @@ function ProductsPanel() {
               items.find((c) => c.parent_id === p.id && c.image_url === src)?.name ?? null
             }
           />
+
+          <VariantsField
+            value={parseVariants(p.variants)}
+            onChange={(v) => update(p.id, { variants: v as unknown as Product["variants"] })}
+          />
+
+
 
 
 
@@ -936,6 +948,87 @@ function GalleryItemEditor({
           ) : null}
         </div>
       </div>
+    </div>
+  );
+}
+
+function VariantsField({
+  value,
+  onChange,
+}: {
+  value: ProductVariant[];
+  onChange: (v: ProductVariant[]) => void;
+}) {
+  const set = (i: number, patch: Partial<ProductVariant>) =>
+    onChange(value.map((v, idx) => (idx === i ? { ...v, ...patch } : v)));
+
+  return (
+    <div className="rounded-xl border border-border p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <span className="text-sm font-medium">Available sizes (optional)</span>
+          <p className="text-xs text-muted-foreground">
+            Leave empty if this product has no size options.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="rounded-full border border-border px-4 py-2 text-sm"
+          onClick={() =>
+            onChange([...value, { name: "", dimensions: "", image_url: "", price: "", available: true }])
+          }
+        >
+          Add size
+        </button>
+      </div>
+
+      {value.length ? (
+        <div className="mt-4 space-y-4">
+          {value.map((v, i) => (
+            <div key={i} className="space-y-3 rounded-lg border border-border p-3">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <Field
+                  label="Size name (e.g. Large)"
+                  value={v.name}
+                  onChange={(x) => set(i, { name: x })}
+                />
+                <Field
+                  label="Dimensions (e.g. 70 cm × 30 cm)"
+                  value={v.dimensions}
+                  onChange={(x) => set(i, { dimensions: x })}
+                />
+                <Field
+                  label="Price (optional)"
+                  value={v.price ?? ""}
+                  onChange={(x) => set(i, { price: x })}
+                />
+              </div>
+              <ImageField
+                label="Size photo (optional)"
+                value={v.image_url ?? ""}
+                onChange={(x) => set(i, { image_url: x })}
+              />
+              <div className="flex flex-wrap items-center gap-6">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={v.available !== false}
+                    onChange={(e) => set(i, { available: e.target.checked })}
+                  />
+                  Available
+                </label>
+                <button
+                  type="button"
+                  className="rounded-full border border-destructive px-4 py-2 text-sm text-destructive"
+                  onClick={() => onChange(value.filter((_, idx) => idx !== i))}
+                >
+                  Remove size
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
