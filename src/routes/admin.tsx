@@ -631,6 +631,8 @@ function ProductsPanel() {
         material: p.material,
         placement: p.placement,
         parent_id: p.parent_id,
+        variants: p.variants,
+
         available: p.available,
         visible: p.visible,
         position: p.position,
