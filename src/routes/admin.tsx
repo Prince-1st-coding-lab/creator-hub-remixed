@@ -9,12 +9,15 @@ import { Toaster } from "@/components/ui/sonner";
 import {
   allProductsQuery,
   allServicesQuery,
+  parseVariants,
   settingsQuery,
   LOGO_SRC,
   type Product,
+  type ProductVariant,
   type Service,
   type SiteSettings,
 } from "@/lib/site-data";
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
