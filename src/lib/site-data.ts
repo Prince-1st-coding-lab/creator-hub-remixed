@@ -6,6 +6,29 @@ export type SiteSettings = Tables<"site_settings">;
 export type Service = Tables<"services">;
 export type Product = Tables<"products">;
 
+export type ProductVariant = {
+  name: string;
+  dimensions: string;
+  image_url?: string;
+  price?: string;
+  available?: boolean;
+};
+
+export const parseVariants = (value: unknown): ProductVariant[] => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((v): v is Record<string, unknown> => Boolean(v) && typeof v === "object")
+    .map((v) => ({
+      name: typeof v.name === "string" ? v.name : "",
+      dimensions: typeof v.dimensions === "string" ? v.dimensions : "",
+      image_url: typeof v.image_url === "string" ? v.image_url : "",
+      price: typeof v.price === "string" ? v.price : "",
+      available: v.available === false ? false : true,
+    }))
+    .filter((v) => v.name || v.dimensions);
+};
+
+
 export const settingsQuery = queryOptions({
   queryKey: ["site_settings"],
   queryFn: async (): Promise<SiteSettings> => {
