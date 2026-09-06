@@ -70,28 +70,28 @@ export function ProductQuickView({
       aria-modal="true"
       aria-label={displayName}
       onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-soil/90 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-soil/95 p-0 backdrop-blur-sm sm:p-4"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative my-8 w-full max-w-3xl overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)]"
+        className="relative h-full w-full overflow-hidden bg-card sm:my-8 sm:h-auto sm:max-w-3xl sm:rounded-2xl sm:border sm:border-border sm:shadow-[var(--shadow-soft)]"
       >
         <button
           type="button"
           aria-label="Close"
           onClick={onClose}
-          className="absolute right-3 top-3 z-10 rounded-full bg-background/80 p-2 text-foreground transition-colors hover:bg-background"
+          className="absolute right-2 top-2 z-10 rounded-full bg-background/80 p-2 text-foreground transition-colors hover:bg-background sm:right-3 sm:top-3"
         >
           <X className="h-5 w-5" />
         </button>
 
-        <div className="grid gap-0 md:grid-cols-[1.1fr_1fr]">
-          <div className="bg-muted/40 p-4">
-            <div className="relative overflow-hidden rounded-xl">
+        <div className="grid h-full gap-0 md:grid-cols-[1.1fr_1fr]">
+          <div className="flex h-full flex-col bg-muted/40 p-2 sm:p-4">
+            <div className="relative flex flex-1 items-center justify-center overflow-hidden rounded-xl">
               <img
                 src={item.images[active]}
                 alt={`${displayName} photo ${active + 1}`}
-                className="max-h-[50vh] w-full object-contain md:max-h-[60vh]"
+                className="max-h-[78vh] w-full object-contain sm:max-h-[80vh] md:max-h-[85vh]"
               />
               {count > 1 ? (
                 <>
@@ -115,7 +115,7 @@ export function ProductQuickView({
               ) : null}
             </div>
             {count > 1 ? (
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+              <div className="mt-2 flex gap-2 overflow-x-auto pb-1 sm:mt-3">
                 {item.images.map((src, i) => (
                   <button
                     key={`${src}-${i}`}
@@ -139,39 +139,41 @@ export function ProductQuickView({
             ) : null}
           </div>
 
-          <div className="p-6">
-            {item.name ? <h2 className="text-2xl">{item.name}</h2> : null}
-            {item.price ? (
-              <p className="mt-2 font-display text-lg text-leaf">{item.price}</p>
-            ) : null}
-            {item.description ? (
-              <p className="mt-3 text-sm text-muted-foreground">{item.description}</p>
-            ) : null}
+          {hasDetails ? (
+            <div className="p-4 sm:p-6">
+              {item.name ? <h2 className="text-2xl">{item.name}</h2> : null}
+              {item.price ? (
+                <p className="mt-2 font-display text-lg text-leaf">{item.price}</p>
+              ) : null}
+              {item.description ? (
+                <p className="mt-3 text-sm text-muted-foreground">{item.description}</p>
+              ) : null}
 
-            {specs.length ? (
-              <dl className="mt-5 space-y-2 border-t border-border pt-4 text-sm">
-                {specs.map((s) => (
-                  <div key={s.label} className="grid grid-cols-[7rem_minmax(0,1fr)] gap-2">
-                    <dt className="text-muted-foreground">{s.label}</dt>
-                    <dd className="min-w-0">{s.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : null}
+              {specs.length ? (
+                <dl className="mt-5 space-y-2 border-t border-border pt-4 text-sm">
+                  {specs.map((s) => (
+                    <div key={s.label} className="grid grid-cols-[7rem_minmax(0,1fr)] gap-2">
+                      <dt className="text-muted-foreground">{s.label}</dt>
+                      <dd className="min-w-0">{s.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
 
-            {item.slug ? (
-              <div className="mt-4">
-                <Link
-                  to="/shop/$slug"
-                  params={{ slug: item.slug }}
-                  onClick={onClose}
-                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                >
-                  <ExternalLink className="h-4 w-4" /> View full page
-                </Link>
-              </div>
-            ) : null}
-          </div>
+              {item.slug ? (
+                <div className="mt-4">
+                  <Link
+                    to="/shop/$slug"
+                    params={{ slug: item.slug }}
+                    onClick={onClose}
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    <ExternalLink className="h-4 w-4" /> View full page
+                  </Link>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
