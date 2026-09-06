@@ -32,6 +32,7 @@ export type Database = {
           size: string
           slug: string
           updated_at: string
+          variants: Json
           visible: boolean
         }
         Insert: {
@@ -51,6 +52,7 @@ export type Database = {
           size?: string
           slug?: string
           updated_at?: string
+          variants?: Json
           visible?: boolean
         }
         Update: {
@@ -70,6 +72,7 @@ export type Database = {
           size?: string
           slug?: string
           updated_at?: string
+          variants?: Json
           visible?: boolean
         }
         Relationships: [
