@@ -66,6 +66,12 @@ function ProductPage() {
 
   const [filter, setFilter] = useState<string | null>(null);
   const [openItem, setOpenItem] = useState<QuickViewItem | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState(1);
+
+  const variants = useMemo(() => parseVariants(product?.variants), [product]);
+  const selectedVariant = variants.find((v) => v.name === selectedSize) ?? null;
+
 
   const items = useMemo<QuickViewItem[]>(() => {
     if (!product) return [];
