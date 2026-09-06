@@ -7,12 +7,14 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { ProductQuickView, type QuickViewItem } from "@/components/site/ProductQuickView";
 import {
+  parseVariants,
   productQuery,
   productsQuery,
   servicesQuery,
   settingsQuery,
   whatsappLink,
 } from "@/lib/site-data";
+
 
 
 export const Route = createFileRoute("/shop/$slug")({
