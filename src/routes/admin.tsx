@@ -703,6 +703,13 @@ function ProductsPanel() {
             }
           />
 
+          <VariantsField
+            value={parseVariants(p.variants)}
+            onChange={(v) => update(p.id, { variants: v as unknown as Product["variants"] })}
+          />
+
+
+
 
 
           <div className="grid gap-4 sm:grid-cols-3">
